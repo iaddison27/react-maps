@@ -13,7 +13,7 @@ interface DraggableMarkerProps {
 }
 
 function DraggableMarker(props: DraggableMarkerProps) {
-    const distanceService = new DistanceService();
+    const distanceService = useMemo(() =>  new DistanceService(), []);
 
     const markerRef = useRef(null);
     const eventHandlers = useMemo(

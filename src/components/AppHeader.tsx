@@ -13,7 +13,7 @@ function AppHeader() {
         <header className={styles.header}>
             <div className="navbar navbar-dark bg-dark shadow-sm">
                 <div className="container d-flex justify-content-between">
-                    <a href="#" className="navbar-brand d-flex align-items-center">
+                    <a href="/#" className="navbar-brand d-flex align-items-center">
                         <FontAwesomeIcon icon={faRoute} />
                         &nbsp;
                         <strong>Distance Calculator</strong>
