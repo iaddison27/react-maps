@@ -5,7 +5,7 @@ import { Button, Modal } from 'react-bootstrap';
 
 interface AboutModalProps {
     show: boolean;
-    handleClose: Function;
+    handleClose: () => void;
 }
 
 function AboutModal(props: AboutModalProps) {

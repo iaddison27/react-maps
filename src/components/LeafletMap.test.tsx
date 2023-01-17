@@ -4,7 +4,7 @@ import LeafletMap from './LeafletMap';
 
 describe('LeafletMap tests', () => {
     test('should render no markers initially', () => {
-         const { container } = render(<LeafletMap  />);
+         const { container } = render(<LeafletMap />);
 
          const mapMarkers = container.querySelectorAll('img.leaflet-marker-icon');
          expect(mapMarkers.length).toBe(0);

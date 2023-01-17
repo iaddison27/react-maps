@@ -3,13 +3,13 @@ import { Button, Col, Form, FormSelect } from 'react-bootstrap';
 import { LatLng } from 'leaflet';
 import { DistanceService } from '../services/DistanceService';
 import styles from './ControlPanel.module.css';
+import RouteState from '../models/RouteState';
 
 interface ControlPanelProps {
-    route: [number, number][];
-    setRoute: any;
-    distance: number;
-    setDistance: any;
+    state: RouteState;
+    setState: any;//(d: RouteState) => void;
 }
+
 function ControlPanel(props: ControlPanelProps) {
 
     const distanceService = new DistanceService();
@@ -17,26 +17,34 @@ function ControlPanel(props: ControlPanelProps) {
     const [distanceUnits, setDistanceUnits] = useState('km');
 
     const clearRouteHandler = () => {
-        props.setRoute([]);
-        props.setDistance(0);
+        props.setState({
+            distance: 0,
+            route: []
+        });
         console.log('clear route')
     }
 
     const clearLastPointHandler = () => {
-        props.setDistance((prevValue: number) => {
-            const route = props.route;
-            if (route.length === 1) {
-                return prevValue;
+        props.setState((prevValue: RouteState) => {
+            // Distance
+            let newDistance = prevValue.distance;
+            const route = prevValue.route;
+            if (route.length > 1) {
+                const pointToRemove = route[route.length - 1];
+                const newLastPoint = route[route.length - 2];
+                const d = distanceService.calculateDistance(new LatLng(pointToRemove[0], pointToRemove[1]), new LatLng(newLastPoint[0], newLastPoint[1]));
+                newDistance = newDistance - d;
             }
-            const pointToRemove = route[route.length - 1];
-            const newLastPoint = route[route.length - 2];
-            const d = distanceService.calculateDistance(new LatLng(pointToRemove[0], pointToRemove[1]), new LatLng(newLastPoint[0], newLastPoint[1]));
-            return prevValue - d;
-        });
-        props.setRoute((prevValue: [number, number][]) => {
-            const copied = [...prevValue];
-            copied.pop();
-            return copied;
+
+            // Route
+            const copiedRoute = [...route];
+            copiedRoute.pop();
+
+            return {
+                distance: newDistance,
+                route: copiedRoute
+
+            }
         });
     }
 
@@ -45,7 +53,7 @@ function ControlPanel(props: ControlPanelProps) {
         setDistanceUnits(newDistanceUnits);
     }
 
-    const distanceDisplayValue = distanceUnits === 'km' ? props.distance : distanceService.convertTo(props.distance, 'miles');
+    const distanceDisplayValue = distanceUnits === 'km' ? props.state.distance : distanceService.convertTo(props.state.distance, 'miles');
 
     return (
         <Col className="d-flex justify-content-center mt-3">
@@ -59,8 +67,8 @@ function ControlPanel(props: ControlPanelProps) {
                 </FormSelect>
             </Form.Group>
             <Form.Group>
-                <Button onClick={clearLastPointHandler} disabled={props.route.length === 0} className={styles.gap} data-testid="clear-last-btn">Clear Last Point</Button>
-                <Button onClick={clearRouteHandler} disabled={props.route.length === 0} data-testid="clear-route-btn">Clear Route</Button>
+                <Button onClick={clearLastPointHandler} disabled={props.state.route.length === 0} className={styles.gap} data-testid="clear-last-btn">Clear Last Point</Button>
+                <Button onClick={clearRouteHandler} disabled={props.state.route.length === 0} data-testid="clear-route-btn">Clear Route</Button>
             </Form.Group>
         </Col>
     );
